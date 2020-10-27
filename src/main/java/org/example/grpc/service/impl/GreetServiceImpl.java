@@ -2,14 +2,13 @@ package org.example.grpc.service.impl;
 
 
 import io.grpc.stub.StreamObserver;
-import org.example.grpc.GreetRequest;
-import org.example.grpc.GreetResponse;
-import org.example.grpc.GreetServiceGrpc;
-import org.example.grpc.Greeting;
+import org.example.grpc.*;
 import org.example.grpc.service.GreetService;
 
+import java.util.stream.IntStream;
+
 /**
- * example for unary service request and response
+ * example for unary/server stream service request and response
  */
 public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase implements GreetService {
 
@@ -17,11 +16,33 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase impl
     public void greet(GreetRequest request, StreamObserver<GreetResponse> responseObserver) {
         Greeting greeting = request.getGreeting();
         GreetResponse response = GreetResponse.newBuilder()
-                    .setResult("Hello "+ greeting.getFirstName() + " " + greeting.getLastName())
+                .setResult("Hello " + greeting.getFirstName() + " " + greeting.getLastName())
                 .build();
-          responseObserver.onNext(response);
-          responseObserver.onCompleted();
+
+        // send the response
+        responseObserver.onNext(response);
+        // complete the RPC call
+        responseObserver.onCompleted();
     }
 
+    @Override
+    public void greetServerStream(GreetServerStreamRequest request, StreamObserver<GreetServerStreamResponse> responseObserver) {
 
+        try {
+            for (int i = 0; i <= 10; i++) {
+
+                GreetServerStreamResponse response = GreetServerStreamResponse.newBuilder()
+                        .setResult("Response = " + i).build();
+                // keep send the response to client as Stream mode
+                responseObserver.onNext(response);
+
+                Thread.sleep(1000L);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // complete the RPC Call
+        responseObserver.onCompleted();
+
+    }
 }

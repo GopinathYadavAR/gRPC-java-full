@@ -10,6 +10,7 @@ public class GrpcServer {
     public static void main(String... str) throws InterruptedException, IOException {
         // create grpc server with port 5001
         Server grpcServer = ServerBuilder.forPort(5001)
+                // add service
                 .addService(new GreetServiceImpl())
                 .build();
         grpcServer.start();
