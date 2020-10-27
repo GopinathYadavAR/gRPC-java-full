@@ -2,6 +2,7 @@ package org.example.grpc;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import org.example.grpc.service.impl.GreetServiceImpl;
 
 import java.io.IOException;
 
@@ -9,6 +10,7 @@ public class GrpcServer {
     public static void main(String... str) throws InterruptedException, IOException {
         // create grpc server with port 5001
         Server grpcServer = ServerBuilder.forPort(5001)
+                .addService(new GreetServiceImpl())
                 .build();
         grpcServer.start();
 
