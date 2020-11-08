@@ -3,10 +3,7 @@ package greet;
 option java_multiple_files = true;
 option java_package = "org.example.grpc";
 
-service GreetService{
-  rpc greet(GreetRequest) returns (GreetResponse) {};
-  rpc greetServerStream(GreetServerStreamRequest) returns (stream GreetServerStreamResponse){};
-}
+
 message Greeting{
   string firstName = 1;
   string lastName = 2;
@@ -14,12 +11,25 @@ message Greeting{
 message GreetRequest{
    Greeting greeting =1;
 }
-message GreetServerStreamRequest{
-  Greeting greeting =1;
-}
+
 message  GreetResponse{
    string  result =1;
 }
+
+message GreetServerStreamRequest{
+  Greeting greeting =1;
+}
 message GreetServerStreamResponse{
   string  result =1;
+}
+message GreetClientStreamRequest{
+  Greeting greeting =1;
+}
+message GreetClientStreamResponse{
+  string  result =1;
+}
+service GreetService{
+  rpc greet(GreetRequest) returns (GreetResponse) {};
+  rpc greetServerStream(GreetServerStreamRequest) returns (stream GreetServerStreamResponse){};
+  rpc greetClientStream(stream GreetClientStreamRequest) returns (GreetClientStreamResponse){};
 }

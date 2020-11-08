@@ -8,11 +8,18 @@ import org.example.grpc.service.GreetService;
 import java.util.stream.IntStream;
 
 /**
- * example for unary/server stream service request and response
+ * example for unary/server/client/bi stream service request and response
  */
 public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase implements GreetService {
 
+
+    /**
+     * This method works as unary request and response
+     * @param request
+     * @param responseObserver
+     */
     @Override
+
     public void greet(GreetRequest request, StreamObserver<GreetResponse> responseObserver) {
         Greeting greeting = request.getGreeting();
         GreetResponse response = GreetResponse.newBuilder()
@@ -25,6 +32,11 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase impl
         responseObserver.onCompleted();
     }
 
+    /**
+     * This method works as  request and server stream response
+     * @param request
+     * @param responseObserver
+     */
     @Override
     public void greetServerStream(GreetServerStreamRequest request, StreamObserver<GreetServerStreamResponse> responseObserver) {
 
@@ -44,5 +56,42 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase impl
         // complete the RPC Call
         responseObserver.onCompleted();
 
+    }
+
+    /**
+     * This method works as client stream request
+     * @param responseObserver
+     * @return
+     */
+    @Override
+    public StreamObserver<GreetClientStreamRequest> greetClientStream(StreamObserver<GreetClientStreamResponse> responseObserver) {
+        StringBuilder stringBuilder = new StringBuilder();
+       StreamObserver<GreetClientStreamRequest>  requestStreamObserver = new StreamObserver<GreetClientStreamRequest>() {
+           @Override
+           public void onNext(GreetClientStreamRequest value) {
+               // read all the request values sent by client
+               stringBuilder.append("Hello ").append(value.getGreeting().getLastName()).append(" | ");
+
+           }
+
+           @Override
+           public void onError(Throwable t) {
+
+           }
+
+           @Override
+           public void onCompleted() {
+               // send response once client finished sending the request
+               responseObserver.onNext(
+                       GreetClientStreamResponse
+                               .newBuilder()
+                               .setResult(stringBuilder.toString())
+                               .build());
+               responseObserver.onCompleted();
+
+           }
+
+       };
+        return requestStreamObserver;
     }
 }
